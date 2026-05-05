@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics OLabs PRO - Кешенді Виртуалды Зертхана</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --dark: #0f172a;
+        --sidebar-bg: #1e293b;
+        --light: #f8fafc;
+        --accent: #3b82f6;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --text-main: #334155;
+        --text-light: #94a3b8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { 
+        margin: 0; 
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+        display: flex; 
+        height: 100vh; 
+        color: var(--text-main); 
+        background: var(--light); 
+        overflow: hidden;
+    }
+    
+    /* СИДБАР (САЙДБАР) СТИЛЬДЕРІ */
+    .sidebar { 
+        width: 320px; 
+        background: var(--dark); 
+        color: white; 
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #334155; 
+        height: 100%;
+    }
+    
+    .sidebar-header {
+        padding: 20px;
+        background: #0b1120;
+    }
+    .sidebar-header h2 { font-size: 1.3rem; margin: 0; color: var(--accent); letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+    
+    .sidebar-menu {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    .sidebar-menu::-webkit-scrollbar { width: 6px; }
+    .sidebar-menu::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+    .lab-group-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); margin: 20px 0 10px 5px; font-weight: 800; letter-spacing: 1px;}
+    .lab { padding: 14px 16px; cursor: pointer; border-radius: 10px; transition: all 0.3s ease; margin-bottom: 8px; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+    .lab:hover { background: var(--sidebar-bg); transform: translateX(5px); border-color: #334155; }
+    .lab.active-lab { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); border-color: var(--primary-hover); }
+
+    /* КЕРІ БАЙЛАНЫС ТІЗІМІ (СИДБАРДА) */
+    .feedback-section-sidebar {
+        padding: 20px;
+        background: var(--sidebar-bg);
+        border-top: 1px solid #334155;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+    .feedback-section-sidebar h3 { margin-top: 0; font-size: 1rem; color: #cbd5e1; font-weight: 600; border-bottom: 1px solid #475569; padding-bottom: 10px; }
+    .feedback-item { background: var(--dark); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; border-left: 3px solid var(--accent); }
+    .feedback-item b { color: #bae6fd; display: block; margin-bottom: 4px; }
+    .feedback-item span { color: #94a3b8; font-size: 0.75rem; }
+
+    /* НЕГІЗГІ КОНТЕНТ */
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f1f5f9; }
+    
+    .tabs-container { background: white; padding: 15px 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); z-index: 10; overflow-x: auto; white-space: nowrap; }
+    .tabs { display: flex; gap: 10px; }
+    .tab { padding: 12px 20px; background: #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; border: none; color: #475569; display: inline-flex; align-items: center; gap: 8px; }
+    .tab:hover { background: #cbd5e1; color: var(--dark); }
+    .tab.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+
+    .main-scroll-area { flex: 1; padding: 30px; overflow-y: auto; scroll-behavior: smooth; }
+    .block { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); max-width: 1000px; margin: 0 auto; line-height: 1.7; }
+    
+    /* ТЕОРИЯ СТИЛЬДЕРІ */
+    h2 { color: var(--dark); border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-top: 0; font-size: 1.8rem; }
+    h3 { color: var(--primary); margin-top: 30px; font-size: 1.3rem; }
+    p { font-size: 1.05rem; color: #475569; }
+    .card { background: #f8fafc; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #e2e8f0; border-left: 4px solid var(--primary); }
+    .formula-box { background: var(--dark); color: #60a5fa; padding: 30px; border-radius: 15px; text-align: center; margin: 30px 0; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+    .formula-main { font-size: 2.2rem; margin-bottom: 10px; }
+    .important { border-left: 5px solid var(--warning); background: #fffbeb; padding: 20px; border-radius: 0 12px 12px 0; margin: 20px 0; color: #92400e; }
+    
+    /* НҰСҚАУЛЫҚ СТИЛЬДЕРІ */
+    .instruction-step { display: flex; gap: 20px; margin-bottom: 20px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .step-number { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; }
+    .step-content h4 { margin: 0 0 10px 0; color: var(--dark); font-size: 1.1rem; }
+    .step-content p { margin: 0; font-size: 0.95rem; }
+
+    /* ТЕСТ СТИЛЬДЕРІ */
+    .question-block { margin-bottom: 30px; padding: 25px; border: 1px solid #e2e8f0; border-radius: 15px; background: #fff; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+    .question-text { font-size: 1.1rem; font-weight: 600; color: var(--dark); margin-bottom: 15px; }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .option { padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 1rem; transition: 0.2s; background: #f8fafc; }
+    .option:hover { border-color: var(--accent); background: #eff6ff; }
+    .option input { transform: scale(1.2); cursor: pointer; }
+
+    /* ОЙЫН СТИЛЬДЕРІ */
+    .game-container { text-align: center; background: #1e293b; padding: 40px; border-radius: 20px; color: white; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
+    .game-header { font-size: 2rem; color: #fbbf24; margin-bottom: 10px; font-weight: 800; }
+    .game-score { font-size: 1.2rem; color: #a7f3d0; margin-bottom: 30px; }
+    .game-board { background: white; padding: 30px; border-radius: 15px; color: var(--dark); max-width: 600px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .game-question { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
+    .game-input { font-size: 1.5rem; padding: 10px; width: 150px; text-align: center; border: 3px solid #e2e8f0; border-radius: 10px; outline: none; transition: 0.3s; }
+    .game-input:focus { border-color: var(--primary); }
+    .game-btn { padding: 12px 30px; font-size: 1.2rem; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-left: 10px; }
+    .game-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+    .game-message { margin-top: 20px; font-size: 1.2rem; font-weight: bold; height: 30px; }
+    .game-choice-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; font-weight: 600; }
+    .game-choice-btn:hover { background: #e2e8f0; border-color: var(--accent); }
+
+    /* КЕРІ БАЙЛАНЫС ФОРМАСЫ */
+    .feedback-form { display: flex; flex-direction: column; gap: 20px; background: #f8fafc; padding: 30px; border-radius: 15px; border: 1px solid #e2e8f0; }
+    .feedback-form input, .feedback-form textarea { padding: 15px; font-size: 1rem; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; outline: none; transition: 0.3s; }
+    .feedback-form input:focus, .feedback-form textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .feedback-form textarea { resize: vertical; min-height: 120px; }
+
+    iframe { width: 100%; height: 650px; border: none; border-radius: 15px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .submit-btn { padding: 18px 40px; background: var(--success); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.1rem; margin-top: 20px; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+    .submit-btn:hover { background: #059669; transform: translateY(-2px); }
+
+    @media (max-width: 768px) {
+        body { flex-direction: column; }
+        .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid #334155; }
+        .sidebar-header { width: 100%; }
+        .sidebar-menu { display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; }
+        .lab-group-title { display: none; }
+        .feedback-section-sidebar { display: none; }
+        .options-grid { grid-template-columns: 1fr; }
+        .tabs { overflow-x: auto; }
+    }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2>⚡ Physics OLabs PRO</h2>
+    </div>
+    
+    <div class="sidebar-menu">
+        <div class="lab-group-title">ІРГЕЛІ ЗАҢДАР</div>
+        <div id="lab-ohm" class="lab" onclick="loadLab('ohm')"><span>📏</span> Ом заңы</div>
+        <div id="lab-resistance" class="lab" onclick="loadLab('resistance')"><span>🧲</span> Өткізгіш кедергісі</div>
+        <div id="lab-power" class="lab" onclick="loadLab('power')"><span>💡</span> Қуат пен жұмыс</div>
+
+        <div class="lab-group-title">ТІЗБЕКТЕРДІ ЗЕРТТЕУ</div>
+        <div id="lab-circuit" class="lab" onclick="loadLab('circuit')"><span>🔌</span> Тізбек жинау</div>
+        <div id="lab-series" class="lab" onclick="loadLab('series')"><span>⛓️</span> Тізбектей жалғау</div>
+        <div id="lab-parallel" class="lab" onclick="loadLab('parallel')"><span>🔀</span> Параллель жалғау</div>
+    </div>
+
+    <div class="feedback-section-sidebar">
+        <h3>💬 Оқушылар пікірі</h3>
+        <div id="sidebar-feedbacks">
+            </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab active" id="tab-theory" onclick="openTab('theory')">📚 Толық Теория</button>
+            <button class="tab" id="tab-instruction" onclick="openTab('instruction')">📋 Нұсқаулық</button>
+            <button class="tab" id="tab-sim" onclick="openTab('sim')">🔬 Зертхана</button>
+            <button class="tab" id="tab-test" onclick="openTab('test')">📝 Білім тексеру</button>
+            <button class="tab" id="tab-game" onclick="openTab('game')">🎮 Ойын</button>
+            <button class="tab" id="tab-feedback" onclick="openTab('feedback')">✉️ Кері байланыс</button>
+        </div>
+    </div>
+    
+    <div class="main-scroll-area">
+        <div class="block" id="content">
+            </div>
+    </div>
+</div>
+
+<script>
+let currentLab = "ohm";
+let currentTab = "theory";
+
+// Ойындар үшін жаһандық айнымалылар
+let gameState = { score: 0, round: 1, currentAnswer: null };
+
+// Кері байланыстарды LocalStorage-тен алу
+let feedbackList = JSON.parse(localStorage.getItem('physics_olabs_feedbacks')) || [
+    { name: "Алихан", text: "Ом заңының виртуалды зертханасы өте түсінікті екен!", date: "15 Наур 2026" },
+    { name: "Аружан", text: "Ойындар бөлімі керемет, формулаларды тез жаттап алдым.", date: "19 Ақп 2026" }
+];
+
+const labsData = {
+    // 1. ОМ ЗАҢЫ
+    ohm: {
+        theory: `
+            <h2>⚡ Тізбек бөлігіне арналған Ом заңы</h2>
+            <p>1827 жылы неміс физигі Георг Ом тәжірибе жүзінде өткізгіш арқылы өтетін ток күшінің оның ұштарындағы кернеуге тәуелділігін анықтады. Бұл электроднамиканың ең іргелі заңдарының бірі.</p>
+            
+            <div class="formula-box">
+                <div class="formula-main">$$I = \\frac{U}{R}$$</div>
+                <p>Тізбек бөлігіндегі ток күші — осы бөліктің ұштарындағы кернеуге тура пропорционал, ал оның кедергісіне кері пропорционал.</p>
+            </div>
+
+            <div class="card">
+                <h3>Физикалық шамалардың табиғаты:</h3>
+                <ul>
+                    <li><b>Ток күші ($I$):</b> Өткізгіштің көлденең қимасы арқылы уақыт бірлігінде өтетін заряд мөлшері. Электрондардың бағытталған қозғалысының қарқындылығын көрсетеді. Өлшем бірлігі: <b>Ампер (А)</b>.</li>
+                    <li><b>Кернеу ($U$):</b> Бірлік зарядты орын ауыстыру кезіндегі электр өрісінің атқаратын жұмысы. Өлшем бірлігі: <b>Вольт (В)</b>.</li>
+                    <li><b>Кедергі ($R$):</b> Өткізгіш материалдың ток ағынына көрсететін қарсылығы. Өлшем бірлігі: <b>Ом (Ом)</b>.</li>
+                </ul>
+            </div>
+
+            <div class="important">
+                <b>Маңызды ескерту:</b> Математикалық формуладан $R = \\frac{U}{I}$ шыққанымен, өткізгіштің кедергісі кернеуге де, ток күшіне де тәуелді емес! Ол өткізгіштің өзіндік қасиеті.
+            </div>
+
+            <h3>Графикалық сипаттама (ВАХ):</h3>
+            <p>Кернеу мен ток күшінің арасындағы тәуелділік графигі <b>Вольт-амперлік сипаттама (ВАХ)</b> деп аталады. Металл өткізгіштер үшін бұл график координаталар басынан өтетін түзу сызық болып табылады.</p>
+        `,
+        instruction: `
+            <h2>📋 "Ом заңы" зертханалық жұмысының нұсқаулығы</h2>
+            <p>Виртуалды зертханада кернеу мен кедергіні өзгерте отырып, ток күшінің қалай өзгеретінін бақылаңыз.</p>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Кернеуді өзгерту</h4>
+                    <p>Сол жақтағы кернеу ($V$) бағанасын жоғары-төмен жылжытыңыз. Батареялар санының артуына және ток күші көрсеткішінің ($I$) өсуіне назар аударыңыз (Тура пропорционалдық).</p>
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Кедергіні өзгерту</h4>
+                    <p>Оң жақтағы кедергі ($R$) бағанасын жылжытыңыз. Схемадағы резистордың ішіндегі қара нүктелер (атомдар) жиілейді. Бұл токтың өтуіне бөгет жасайды да, ток күші ($I$) азаяды (Кері пропорционалдық).</p>
+                </div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Қорытынды жасау</h4>
+                    <p>Экрандағы әріптердің өлшеміне қараңыз. Кернеу үлкейгенде 'V' әрпі, ал кедергі үлкейгенде 'R' әрпі үлкейеді. Осы арқылы Ом заңының формуласының физикалық мағынасын көзбен көре аласыз.</p>
+                </div>
+            </div>
+        `,
+        sim: "https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_en.html",
+        test: [
+            {q: "Кедергі 2 есе азайса, ток күші қалай өзгереді (кернеу тұрақты)?", a: ["2 есе артады", "2 есе азаяды", "Өзгермейді", "4 есе артады"], correct: 0},
+            {q: "Ом заңының формуласы қайсысы?", a: ["$$I = UR$$", "$$I = \\frac{U}{R}$$", "$$I = \\frac{R}{U}$$", "$$I = U+R$$"], correct: 1},
+            {q: "Кедергісі 5 Ом өткізгішке 20В кернеу берілсе, ток күші қандай болады?", a: ["100 А", "4 А", "0.25 А", "15 А"], correct: 1},
+            {q: "Кернеуді өлшейтін құрал және оның тізбекке қосылу тәсілі:", a: ["Амперметр, тізбектей", "Вольтметр, параллель", "Вольтметр, тізбектей", "Ваттметр, параллель"], correct: 1},
+            {q: "Кернеу 3 есе артса, ток күші қалай өзгереді?", a: ["3 есе азаяды", "9 есе артады", "Өзгермейді", "3 есе артады"], correct: 3},
+            {q: "Вольт-амперлік сипаттама (ВАХ) металдар үшін қандай сызық болады?", a: ["Парабола", "Түзу сызық", "Гипербола", "Шеңбер"], correct: 1}
+        ],
+        gameType: "calc_ohm"
+    },
+
+    // 2. ӨТКІЗГІШ КЕДЕРГІСІ (ЖАҢА ТАҚЫРЫП)
+    resistance: {
+        theory: `
+            <h2>🧲 Өткізгіш кедергісі және оның параметрлері</h2>
+            <p>Өткізгіштің кедергісі — электр тогының өтуіне материалдың жасайтын бөгеті. Электрондар өткізгіш бойымен қозғалғанда кристалл тордың түйіндеріндегі иондармен соқтығысып, өз энергиясын жоғалтады.</p>
+            
+            <div class="formula-box">
+                <div class="formula-main">$$R = \\rho \\frac{l}{S}$$</div>
+                <p>Кедергі өткізгіштің ұзындығына, көлденең қимасының ауданына және затына тәуелді.</p>
+            </div>
+
+            <div class="card">
+                <h3>Формуладағы шамалар:</h3>
+                <ul>
+                    <li><b>$l$ (ұзындығы):</b> Өткізгіш неғұрлым ұзын болса, электрондар соғұрлым көп кедергіге ұшырайды. (Тура пропорционал). Өлшем бірлігі: метр (м).</li>
+                    <li><b>$S$ (қима ауданы):</b> Өткізгіш неғұрлым жуан болса, электрондардың өтуі соғұрлым оңай болады (Кең дәліз сияқты). (Кері пропорционал). Өлшем бірлігі: мм² немесе м².</li>
+                    <li><b>$\\rho$ (меншікті кедергі):</b> Материалдың табиғатын сипаттайтын тұрақты шама. Өлшем бірлігі: Ом·мм²/м немесе Ом·м. Күміс пен мыстың меншікті кедергісі өте төмен, сондықтан олар жақсы өткізгіштер.</li>
+                </ul>
+            </div>
+
+            <div class="important">
+                <b>Өмірмен байланыс:</b> Жоғары вольтты электр желілерінде кедергіні азайтып, шығынды болдырмау үшін қима ауданы үлкен (жуан) сымдар қолданылады. Ал қыздыру шамдарында (вольфрам) жылу көп бөлінуі үшін өте жіңішке әрі ұзын сым алынады.
+            </div>
+        `,
+        instruction: `
+            <h2>📋 "Сымның кедергісі" зертханалық нұсқаулығы</h2>
+            <p>Симулятор арқылы сымның геометриялық өлшемдерінің кедергіге әсерін зерттеңіз.</p>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Меншікті кедергіні (Resistivity, $\\rho$) зерттеу</h4>
+                    <p>Жоғарғы сырғытпаны қозғаңыз. $\\rho$ артқан сайын сым ішіндегі қара нүктелер (бөгеттер) көбейеді және жалпы кедергі ($R$) артады.</p>
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Ұзындықты (Length, $l$) өзгерту</h4>
+                    <p>Ортаңғы сырғытпаны оңға тартып сымды ұзартыңыз. Кедергінің тура пропорционал өсетінін бақылаңыз.</p>
+                </div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Қима ауданын (Area, $S$) өзгерту</h4>
+                    <p>Төменгі сырғытпа арқылы сымды жуандатыңыз. Кең сымнан токтың өтуі оңайлап, кедергі азаятынын көресіз. Бұл $R$ мен $S$ арасындағы кері тәуелділікті дәлелдейді.</p>
+                </div>
+            </div>
+        `,
+        sim: "https://phet.colorado.edu/sims/html/resistance-in-a-wire/latest/resistance-in-a-wire_en.html",
+        test: [
+            {q: "Өткізгіштің ұзындығын 2 есе арттырса, оның кедергісі қалай өзгереді?", a: ["2 есе азаяды", "2 есе артады", "Өзгермейді", "4 есе артады"], correct: 1},
+            {q: "Өткізгіштің көлденең қимасының ауданын 3 есе үлкейтсе, кедергісі:", a: ["3 есе артады", "9 есе артады", "3 есе азаяды", "Өзгермейді"], correct: 2},
+            {q: "Меншікті кедергінің ($\\rho$) өлшем бірлігі?", a: ["Ом", "Ом·м", "Ом/м", "Ватт"], correct: 1},
+            {q: "Кедергісі ең аз металл?", a: ["Темір", "Күміс", "Алюминий", "Қорғасын"], correct: 1},
+            {q: "Сымды дәл ортасынан екіге бөліп, тек бір бөлігін алсақ кедергісі?", a: ["2 есе артады", "2 есе азаяды", "4 есе азаяды", "Өзгермейді"], correct: 1},
+            {q: "Реостаттың жұмыс істеу принципі қандай шаманы өзгертуге негізделген?", a: ["Сымның затын", "Сымның ауданын", "Сымның ұзындығын", "Ток күшін"], correct: 2}
+        ],
+        gameType: "logic_resistance"
+    },
+
+    // 3. ҚУАТ ПЕН ЖҰМЫС
+    power: {
+        theory: `
+            <h2>💡 Электр тогының қуаты мен жұмысы</h2>
+            <p>Электр тогы өткізгіш бойымен өткенде жұмыс істейді. Бұл жұмыс электр энергиясының энергияның басқа түрлеріне (жылулық, жарық, механикалық) айналу өлшемі болып табылады.</p>
+            
+            <div class="card">
+                <h3>Токтың жұмысы ($A$)</h3>
+                <p>Электр тогының жұмысы тізбек бөлігіндегі кернеуді, ток күшін және токтың өту уақытын көбейткенге тең.</p>
+                <div class="formula-main text-center">$$A = U \\cdot I \\cdot t$$</div>
+                <p>Өлшем бірлігі: <b>Джоуль (Дж)</b>. Практикада электр энергиясын есептеу үшін <b>кВт·сағ (килоВатт-сағат)</b> қолданылады.</p>
+            </div>
+
+            <div class="card">
+                <h3>Электр тогының қуаты ($P$)</h3>
+                <p>Қуат — уақыт бірлігінде жасалатын жұмыс. Ол құралдың электр энергиясын қаншалықты тез тұтынатынын көрсетеді.</p>
+                <div class="formula-main text-center">$$P = U \\cdot I = I^2 \\cdot R = \\frac{U^2}{R}$$</div>
+                <p>Өлшем бірлігі: <b>Ватт (Вт)</b>.</p>
+            </div>
+
+            <div class="important">
+                <b>Джоуль-Ленц заңы:</b> Өткізгіштен ток өткенде бөлінетін жылу мөлшері ток күшінің квадратына, өткізгіш кедергісіне және уақытқа тура пропорционал: <br><br>
+                <center>$$Q = I^2 \\cdot R \\cdot t$$</center>
+            </div>
+        `,
+        instruction: `
+            <h2>📋 "Тізбек құрастыру" нұсқаулығы (Қуатты бақылау)</h2>
+            <p>Тізбек құрастыру симуляторы арқылы шамның жарықтығын (қуатын) зерттеңіз.</p>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Қарапайым тізбек жинау</h4>
+                    <p>Экранға 1 батарея, 1 шам және сымдар шығарып, тұйық тізбек құрастырыңыз. Шамның жарықтығына (сары сәулелердің ұзындығына) назар аударыңыз.</p>
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Кернеуді арттыру</h4>
+                    <p>Батареяны басып, төмендегі панельден оның кернеуін (Вольт) көбейтіңіз. Шамның жарықтығы күшейеді. Бұл қуаттың кернеуге тура пропорционал екенін дәлелдейді ($P = UI$).</p>
+                </div>
+            </div>
+        `,
+        sim: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_en.html",
+        test: [
+            {q: "Электр тогының қуаты қандай әріппен белгіленеді және өлшем бірлігі?", a: ["A, Джоуль", "P, Ватт", "Q, Джоуль", "I, Ампер"], correct: 1},
+            {q: "Электр энергиясының тұрмыстағы есептеу бірлігі?", a: ["Джоуль", "Ватт", "кВт·сағ", "Вольт·Ампер"], correct: 2},
+            {q: "Ток күшін 2 есе арттырсақ, өткізгіштен бөлінетін жылу мөлшері (Q) қалай өзгереді?", a: ["2 есе артады", "4 есе артады", "2 есе азаяды", "Өзгермейді"], correct: 1},
+            {q: "Джоуль-Ленц заңының формуласы?", a: ["$$Q=UIt$$", "$$Q=I^2Rt$$", "$$Q=Pt$$", "Бәрі дұрыс"], correct: 3},
+            {q: "Қуаты 100 Вт шам 2 сағатта қанша энергия жұмсайды?", a: ["50 Вт·сағ", "200 Вт·сағ", "100 Вт·сағ", "0.5 Вт·сағ"], correct: 1},
+            {q: "Жарықтандыру желісіндегі кернеу 220 В, ал шамның тогы 0.5 А. Шамның қуаты?", a: ["440 Вт", "110 Вт", "220.5 Вт", "100 Вт"], correct: 1}
+        ],
+        gameType: "calc_power"
+    },
+
+    // 4. ТІЗБЕК ЖИНАУ
+    circuit: {
+        theory: `
+            <h2>🔌 Электр тізбегі және оның элементтері</h2>
+            <p>Электр тізбегі — электр тогының жүруіне арналған құрылғылар мен объектілердің жиынтығы. Тізбек жұмыс істеуі үшін ол міндетті түрде <b>тұйықталған</b> болуы керек.</p>
+            
+            <div class="card">
+                <h3>Тізбектің негізгі бөліктері:</h3>
+                <ol>
+                    <li><b>Ток көзі:</b> Электр энергиясын өндіруші (Гальвани элементі, батарея, аккумулятор, генератор).</li>
+                    <li><b>Тұтынушы:</b> Электр энергиясын басқа энергияға айналдыратын құрал (шам, қозғалтқыш, жылытқыш).</li>
+                    <li><b>Басқару құрылғылары:</b> Тізбекті қосып, ажырататын элементтер (кілт, ажыратқыш).</li>
+                    <li><b>Жалғағыш сымдар:</b> Элементтерді бір-бірімен байланыстыратын өткізгіштер.</li>
+                </ol>
+            </div>
+
+            <div class="important">
+                <b>Токтың бағыты:</b> Тарихи түрде тізбектегі электр тогының бағыты ретінде оң зарядтардың қозғалыс бағыты, яғни ток көзінің <b>оң полюсінен (+) теріс полюсіне (-) қарай</b> қабылданған. (Ал шын мәнінде электрондар терістен оңға қарай қозғалады).
+            </div>
+            
+            <h3>Қысқа тұйықталу</h3>
+            <p>Егер ток көзінің екі полюсін кедергісі өте аз (нөлге жақын) өткізгішпен тікелей жалғаса, тізбектегі ток күші күрт артады. Бұл құбылысты <b>қысқа тұйықталу</b> деп атайды. Бұл өртке немесе ток көзінің бұзылуына әкеп соғады.</p>
+        `,
+        instruction: `
+            <h2>📋 "Тізбек жинау" базалық нұсқаулығы</h2>
+            <p>Виртуалды лабораторияда тізбек құрастырып, құралдарды өлшеуді үйреніңіз.</p>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Схема құрастыру</h4>
+                    <p>Экранға ток көзін, кілтті (switch) және резисторды шығарып, сымдармен жалғаңыз. Кілтті жапқанда токтың жүре бастағанын көресіз.</p>
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Амперметрді қосу</h4>
+                    <p>Оң жақ панельден Амперметрді алып, оны тізбектің ішіне үзіп <b>тізбектей</b> жалғаңыз. Ол тізбектен өтіп жатқан токты көрсетеді.</p>
+                </div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Вольтметрді қосу</h4>
+                    <p>Вольтметрді алып, оның екі ұшын резистордың (немесе шамның) екі жағына <b>параллель</b> қойыңыз. Бұл элементтегі кернеу түсуін өлшейді.</p>
+                </div>
+            </div>
+        `,
+        sim: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html",
+        test: [
+            {q: "Тізбектегі токты қосып, ажыратуға арналған құрал?", a: ["Вольтметр", "Реостат", "Кілт", "Сақтандырғыш"], correct: 2},
+            {q: "Вольтметр тізбекке қалай жалғанады?", a: ["Тізбектей", "Параллель", "Екеуі де дұрыс", "Жалғанбайды"], correct: 1},
+            {q: "Қысқа тұйықталу деген не?", a: ["Кедергінің шексіз артуы", "Тізбек ұштарын кедергісіз тікелей қосу", "Кернеудің жоғалуы", "Тізбектің ашық болуы"], correct: 1},
+            {q: "Электр тізбегінің схемасында ток көзінің ұзын сызығы нені білдіреді?", a: ["Плюс (+)", "Минус (-)", "Жерге қосу", "Кедергі"], correct: 0},
+            {q: "Ток күшінің бағыты ретінде не қабылданған?", a: ["Электрондардың қозғалысы", "Плюстен минуска қарай", "Минустан плюске қарай", "Ерікті бағыт"], correct: 1},
+            {q: "Тізбек жұмыс істеуі үшін ең басты шарт?", a: ["Кілттің ашық болуы", "Тізбектің тұйық болуы", "Амперметрдің болуы", "Кедергінің болмауы"], correct: 1}
+        ],
+        gameType: "logic_circuit"
+    },
+
+    // 5. ТІЗБЕКТЕЙ ЖАЛҒАУ
+    series: {
+        theory: `
+            <h2>⛓️ Өткізгіштерді тізбектей жалғау</h2>
+            <p>Тізбектей жалғау кезінде өткізгіштер бірінен соң бірі, тармақталусыз жалғанады. Ток өту үшін тек бір ғана жол болады.</p>
+            
+            <div class="card">
+                <h3>Тізбектей жалғаудың заңдылықтары:</h3>
+                <ul>
+                    <li><b>Ток күші тұрақты ($I = const$):</b> Заряд тізбектің ешбір жерінде жиналып қалмайтындықтан, барлық өткізгіштердегі ток күші бірдей болады.<br>$$I = I_1 = I_2 = ... = I_n$$</li>
+                    <li><b>Кернеудің бөлінуі:</b> Тізбектің ұштарындағы жалпы кернеу әрбір өткізгіштегі кернеулердің қосындысына тең.<br>$$U = U_1 + U_2 + ... + U_n$$</li>
+                    <li><b>Жалпы кедергі:</b> Жалпы кедергі жеке кедергілердің қосындысына тең (өйткені токтың жолы ұзарады).<br>$$R = R_1 + R_2 + ... + R_n$$</li>
+                </ul>
+            </div>
+
+            <div class="important">
+                <b>Кернеу бөлгіш (Voltage Divider):</b> Ом заңына сәйкес ($U = IR$), тізбектей жалғанған өткізгіштерде кедергісі үлкен элементте кернеу көбірек түседі. $\\frac{U_1}{U_2} = \\frac{R_1}{R_2}$
+            </div>
+            
+            <p><b>Кемшілігі:</b> Тізбектей жалғанған элементтердің біреуі істен шықса (немесе ажыратылса), тізбек үзіліп, басқалары да жұмыс істемей қалады. Мысалы: ескі шырша гирляндалары.</p>
+        `,
+        instruction: `
+            <h2>📋 "Тізбектей жалғау" тәжірибесі</h2>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Екі шамды тізбектей жалғау</h4>
+                    <p>Ток көзіне екі шамды бірінен соң бірін тізбектеп жалғаңыз. Екі шамның да жарықтығы бір шам қосқан кездегіден бәсеңдейтінін байқайсыз (Өйткені кедергі артты, ток азайды).</p>
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Үзілуді бақылау</h4>
+                    <p>Екі шамның ортасындағы сымды өшіріңіз (қайшы белгісімен). Ток жүруін тоқтатады және екі шам да сөнеді.</p>
+                </div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Кернеуді өлшеу</h4>
+                    <p>Вольтметрді алып, бірінші шамның кернеуін ($U_1$), сосын екінші шамның кернеуін ($U_2$), сосын батареяның кернеуін ($U$) өлшеңіз. $U = U_1 + U_2$ ережесінің орындалатынына көз жеткізіңіз.</p>
+                </div>
+            </div>
+        `,
+        sim: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_en.html",
+        test: [
+            {q: "Тізбектей жалғауда қай шама тізбектің барлық бөлігінде бірдей болады?", a: ["Кернеу", "Кедергі", "Ток күші", "Қуат"], correct: 2},
+            {q: "10 Ом және 20 Ом резисторлар тізбектей жалғанған. Жалпы кедергі қандай?", a: ["30 Ом", "200 Ом", "6.6 Ом", "10 Ом"], correct: 0},
+            {q: "Тізбектей жалғанған екі шамның біреуінің кедергісі үлкен. Қай шамда кернеу үлкен болады?", a: ["Кедергісі кіші шамда", "Кедергісі үлкен шамда", "Екеуінде бірдей", "Кернеу нөлге тең"], correct: 1},
+            {q: "Тізбектей жалғауда жалпы кернеу 12В. $U_1=4В$ болса, $U_2$ неге тең?", a: ["16 В", "3 В", "8 В", "48 В"], correct: 2},
+            {q: "Тізбектей жалғаудың басты кемшілігі қандай?", a: ["Кедергінің азаюы", "Ток күшінің артуы", "Бір элемент үзілсе, бүкіл тізбек ажырайды", "Кернеудің тұрақтылығы"], correct: 2},
+            {q: "Тізбектей жалғауда жалпы кедергіні табу формуласы:", a: ["$$R = \\frac{R_1 R_2}{R_1+R_2}$$", "$$R = R_1 + R_2$$", "$$R = \\frac{1}{R_1} + \\frac{1}{R_2}$$", "$$R = R_1 - R_2$$"], correct: 1}
+        ],
+        gameType: "logic_series"
+    },
+
+    // 6. ПАРАЛЛЕЛЬ ЖАЛҒАУ
+    parallel: {
+        theory: `
+            <h2>🔀 Өткізгіштерді параллель жалғау</h2>
+            <p>Параллель жалғау кезінде барлық өткізгіштердің бастары бір түйінде, ал ұштары екінші бір түйінде қосылады. Бұл тұрмыстағы, үйлердегі ең көп таралған жалғау түрі.</p>
+
+            <div class="card">
+                <h3>Параллель жалғаудың заңдылықтары:</h3>
+                <ul>
+                    <li><b>Кернеу бірдей ($U = const$):</b> Барлық параллель тармақтар ток көзінің бірдей нүктелеріне қосылғандықтан, кернеу бірдей болады.<br>$$U = U_1 = U_2 = ... = U_n$$</li>
+                    <li><b>Ток күшінің тармақталуы:</b> Тармақталмаған бөліктегі ток күші жеке тармақтардағы токтардың қосындысына тең (Зарядтың сақталу заңы).<br>$$I = I_1 + I_2 + ... + I_n$$</li>
+                    <li><b>Кедергінің кері шамасы:</b> Жалпы кедергінің кері шамасы жеке кедергілердің кері шамаларының қосындысына тең.<br>$$\\frac{1}{R} = \\frac{1}{R_1} + \\frac{1}{R_2} + ... + \\frac{1}{R_n}$$</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <p>Екі резистор параллель жалғанған жағдайдағы ыңғайлы формула:</p>
+                <div class="formula-main">$$R = \\frac{R_1 \\cdot R_2}{R_1 + R_2}$$</div>
+            </div>
+
+            <div class="important">
+                <b>Негізгі қасиеті:</b> Параллель жалғаған кезде жалпы кедергі тізбектегі ең кіші кедергіден де <b>кіші</b> болады! Сонымен қатар, бір тармақты үзіп тастағанмен, басқа тармақтармен ток жүре береді.
+            </div>
+        `,
+        instruction: `
+            <h2>📋 "Параллель жалғау" тәжірибесі</h2>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Тармақталған тізбек жинау</h4>
+                    <p>Ток көзінен шыққан сымды екіге тармақтап, әр тармаққа бір-бір шамнан қойыңыз. Сосын оларды қайта біріктіріп ток көзінің екінші ұшына әкеліңіз.</p>
+                </div>
+            </div>
+            
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Тәуелсіздікті тексеру</h4>
+                    <p>Тармақтардың біріндегі шамды алып тастаңыз немесе сымын үзіңіз. Екінші тармақтағы шам өзгеріссіз жанып тұра береді. Міне осы қасиеті үшін үйдегі розеткалар мен шамдар параллель жалғанады!</p>
+                </div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Ток күшін өлшеу</h4>
+                    <p>Амперметрмен жалпы токты ($I$), сосын әр тармақтағы токты ($I_1, I_2$) өлшеңіз. Олардың қосындысы жалпы токқа тең екеніне көз жеткізіңіз.</p>
+                </div>
+            </div>
+        `,
+        sim: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_en.html",
+        test: [
+            {q: "Параллель жалғауда қай шама тұрақты (бірдей) болады?", a: ["Ток күші", "Кернеу", "Кедергі", "Заряд"], correct: 1},
+            {q: "Екі бірдей 10 Ом резистор параллель жалғанса, жалпы кедергі қанша болады?", a: ["20 Ом", "10 Ом", "5 Ом", "100 Ом"], correct: 2},
+            {q: "Параллель жалғанған тармақтар саны артса, жалпы кедергі қалай өзгереді?", a: ["Артады", "Азаяды", "Өзгермейді", "Басында артып, кейін азаяды"], correct: 1},
+            {q: "Үйдегі электр аспаптары неге параллель жалғанады?", a: ["Кедергіні арттыру үшін", "Бірі істен шықса, басқалары жұмыс істеуі үшін", "Ток күшін азайту үшін", "Қауіпсіздік үшін"], correct: 1},
+            {q: "Жалпы ток I = 5А, бірінші тармақтағы I1 = 2А болса, параллель екінші тармақтағы I2 неге тең?", a: ["7 А", "3 А", "2.5 А", "10 А"], correct: 1},
+            {q: "$R_1=6$ Ом, $R_2=3$ Ом параллель жалғанған. Жалпы кедергі?", a: ["9 Ом", "18 Ом", "2 Ом", "4.5 Ом"], correct: 2}
+        ],
+        gameType: "logic_parallel"
+    }
+};
+
+// ================= ОЙЫН ЛОГИКАСЫ =================
+function renderGame(type) {
+    let html = "";
+    gameState.score = 0;
+    gameState.round = 1;
+
+    if(type === "calc_ohm" || type === "calc_power") {
+        html = `
+            <div class="game-container">
+                <div class="game-header">⚡ Жылдамдық калькуляторы</div>
+                <div class="game-score">Ұпай: <span id="gameScore">0</span> / 5</div>
+                <div class="game-board">
+                    <div class="game-question" id="gQuestion">Есеп жүктелуде...</div>
+                    <input type="number" id="gInput" class="game-input" placeholder="?" autocomplete="off">
+                    <button class="game-btn" onclick="checkGameCalc('${type}')">Тексеру</button>
+                    <div id="gMsg" class="game-message"></div>
+                </div>
+            </div>
+        `;
+        setTimeout(() => loadNextCalcTask(type), 100);
+    } 
+    else if (type.startsWith("logic_")) {
+        html = `
+            <div class="game-container">
+                <div class="game-header">🧠 Логикалық викторина</div>
+                <div class="game-score">Ұпай: <span id="gameScore">0</span> / 5</div>
+                <div class="game-board">
+                    <div class="game-question" id="gQuestion">Сұрақ жүктелуде...</div>
+                    <div id="gChoices"></div>
+                    <div id="gMsg" class="game-message"></div>
+                </div>
+            </div>
+        `;
+        setTimeout(() => loadNextLogicTask(type), 100);
+    }
+    return html;
+}
+
+function loadNextCalcTask(type) {
+    if(gameState.round > 5) {
+        document.getElementById("gQuestion").innerHTML = `Ойын аяқталды! Жинаған ұпайыңыз: ${gameState.score}`;
+        document.getElementById("gInput").style.display = "none";
+        document.querySelector(".game-btn").style.display = "none";
+        return;
+    }
+    let qElem = document.getElementById("gQuestion");
+    document.getElementById("gInput").value = "";
+    document.getElementById("gMsg").innerText = "";
+    
+    if(type === "calc_ohm") {
+        let R = Math.floor(Math.random() * 9) + 2; // 2..10
+        let I = Math.floor(Math.random() * 5) + 1; // 1..5
+        let U = I * R;
+        gameState.currentAnswer = I;
+        qElem.innerHTML = `U = ${U} В<br>R = ${R} Ом<br><br>I = ? А`;
+    } else if(type === "calc_power") {
+        let I = Math.floor(Math.random() * 5) + 1;
+        let U = (Math.floor(Math.random() * 4) + 1) * 10; // 10,20,30,40
+        gameState.currentAnswer = U * I;
+        qElem.innerHTML = `U = ${U} В<br>I = ${I} А<br><br>P = ? Вт`;
+    }
+}
+
+function checkGameCalc(type) {
+    let inputVal = parseFloat(document.getElementById("gInput").value);
+    let msg = document.getElementById("gMsg");
+    if(inputVal === gameState.currentAnswer) {
+        gameState.score++;
+        document.getElementById("gameScore").innerText = gameState.score;
+        msg.innerText = "Дұрыс! ✅";
+        msg.style.color = "#10b981";
+    } else {
+        msg.innerText = `Қате! Дұрыс жауабы: ${gameState.currentAnswer} ❌`;
+        msg.style.color = "#ef4444";
+    }
+    gameState.round++;
+    setTimeout(() => loadNextCalcTask(type), 1500);
+}
+
+const logicTasks = {
+    logic_resistance: [
+        { q: "Қай сымның кедергісі үлкен?", a: ["Қысқа әрі жуан", "Ұзын әрі жіңішке"], correct: 1 },
+        { q: "Темір мен Күміс сымдардың өлшемдері бірдей. Қайсысының кедергісі көп?", a: ["Темір", "Күміс", "Бірдей"], correct: 0 },
+        { q: "Сымды қақ ортасынан бүктеп ширатсақ, кедергісі қалай өзгереді?", a: ["Артады", "Азаяды (4 есе)", "Өзгермейді"], correct: 1 },
+        { q: "Меншікті кедергісі аз материалды қайда қолданады?", a: ["Қыздырғыш элементте", "Электр тасымалдау сымында"], correct: 1 },
+        { q: "Ұзындығы 2 есе артса, кедергі...", a: ["2 есе артады", "2 есе азаяды"], correct: 0 }
+    ],
+    logic_circuit: [
+        { q: "Тізбектегі кілт ашық тұр. Шам жана ма?", a: ["Иә", "Жоқ"], correct: 1 },
+        { q: "Электрондардың бағыты мен 'токтың қабылданған бағыты' бірдей ме?", a: ["Иә", "Жоқ (қарама-қарсы)"], correct: 1 },
+        { q: "Амперметр қандай жалғанады?", a: ["Тізбектей", "Параллель"], correct: 0 },
+        { q: "Қысқа тұйықталу кезінде ток күші...", a: ["Нөлге тең болады", "Күрт артып кетеді"], correct: 1 },
+        { q: "Вольтметрдің ішкі кедергісі қандай болу керек?", a: ["Өте аз", "Өте үлкен"], correct: 1 }
+    ],
+    logic_series: [
+        { q: "Шырша гирляндасында бір шам күйіп кетсе қалғаны жана ма?", a: ["Иә", "Жоқ"], correct: 1 },
+        { q: "Тізбектей жалғауда ток күші...", a: ["Бөлінеді", "Барлық жерде бірдей"], correct: 1 },
+        { q: "R1 = 5 Ом, R2 = 10 Ом тізбектей. Қайсысында кернеу көп түседі?", a: ["R1-де", "R2-де", "Бірдей"], correct: 1 },
+        { q: "Кедергілерді тізбектей жалғасақ, жалпы кедергі...", a: ["Ең үлкенінен де үлкен болады", "Ең кішісінен де кіші болады"], correct: 0 },
+        { q: "Кернеулер қалай табылады?", a: ["U = U1 = U2", "U = U1 + U2"], correct: 1 }
+    ],
+    logic_parallel: [
+        { q: "Үйдегі барлық розеткалар қалай жалғанады?", a: ["Тізбектей", "Параллель"], correct: 1 },
+        { q: "Параллель жалғауда қай шама бірдей?", a: ["Ток күші", "Кернеу"], correct: 1 },
+        { q: "Екі бірдей резистор параллель қосылса, жалпы кедергі...", a: ["2 есе артады", "2 есе азаяды"], correct: 1 },
+        { q: "Бір тармақты кесіп тастасақ, екінші тармақтағы шам...", a: ["Сөнеді", "Жана береді"], correct: 1 },
+        { q: "Параллель жалғауда жалпы кедергі...", a: ["Әрқашан артады", "Ең кіші кедергіден де аз болады"], correct: 1 }
+    ]
+};
+
+function loadNextLogicTask(type) {
+    if(gameState.round > 5) {
+        document.getElementById("gQuestion").innerHTML = `Ойын аяқталды! Жинаған ұпайыңыз: ${gameState.score}`;
+        document.getElementById("gChoices").innerHTML = "";
+        return;
+    }
+    let task = logicTasks[type][gameState.round - 1];
+    gameState.currentAnswer = task.correct;
+    
+    document.getElementById("gMsg").innerText = "";
+    document.getElementById("gQuestion").innerText = task.q;
+    
+    let choicesHtml = task.a.map((ans, idx) => `
+        <button class="game-choice-btn" onclick="checkGameLogic('${type}', ${idx})">${ans}</button>
+    `).join('');
+    document.getElementById("gChoices").innerHTML = choicesHtml;
+}
+
+function checkGameLogic(type, selectedIdx) {
+    let msg = document.getElementById("gMsg");
+    if(selectedIdx === gameState.currentAnswer) {
+        gameState.score++;
+        document.getElementById("gameScore").innerText = gameState.score;
+        msg.innerText = "Дұрыс! ✅";
+        msg.style.color = "#10b981";
+    } else {
+        msg.innerText = "Қате! ❌";
+        msg.style.color = "#ef4444";
+    }
+    
+    // Барлық батырмаларды сөндіру (2 рет баспау үшін)
+    let btns = document.querySelectorAll(".game-choice-btn");
+    btns.forEach(b => b.disabled = true);
+    
+    gameState.round++;
+    setTimeout(() => loadNextLogicTask(type), 1500);
+}
+
+// ================= ФОРМА ЖӘНЕ ИНТЕРФЕЙС ЛОГИКАСЫ =================
+
+function loadLab(l) {
+    currentLab = l;
+    document.querySelectorAll(".lab").forEach(x => x.classList.remove("active-lab"));
+    document.getElementById("lab-" + l).classList.add("active-lab");
+    
+    // Егер Кері байланыс таб-ында тұрсақ, оны ауыстырмаймыз, бірақ басқаларында болсақ Теорияға қайтамыз
+    if(currentTab !== 'feedback') {
+        openTab('theory');
+    } else {
+        render();
+    }
+}
+
+function openTab(t) {
+    currentTab = t;
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    document.getElementById("tab-" + t).classList.add("active");
+    render();
+}
+
+function render() {
+    let c = document.getElementById("content");
+    let data = labsData[currentLab];
+    
+    if(currentTab === "theory") {
+        c.innerHTML = data.theory;
+    } else if(currentTab === "instruction") {
+        c.innerHTML = data.instruction;
+    } else if(currentTab === "sim") {
+        c.innerHTML = `<h2>🔬 Зертханалық орта</h2><p>Төмендегі симулятор арқылы нұсқаулықтағы қадамдарды орындаңыз.</p><iframe src="${data.sim}"></iframe>`;
+    } else if(currentTab === "test") {
+        c.innerHTML = `<h2>📝 Білімді тексеру</h2><p>Осы тақырып бойынша 6 сұраққа жауап беріңіз.</p><div id="quiz-box">${generateTest(data.test)}</div>
+        <button class="submit-btn" onclick="checkQuiz()">Нәтижені тексеру</button>
+        <p id="quiz-res" style="font-size:1.5rem; text-align:center; font-weight:bold; margin-top:20px;"></p>`;
+        // MathJax/KaTeX үшін
+    } else if(currentTab === "game") {
+        c.innerHTML = renderGame(data.gameType);
+    } else if(currentTab === "feedback") {
+        c.innerHTML = `
+            <h2>✉️ Кері байланыс қалдыру</h2>
+            <p>Платформа туралы, осы тақырыптың түсініктілігі туралы өз пікіріңізді немесе ұсынысыңызды қалдырыңыз.</p>
+            <div class="feedback-form">
+                <input type="text" id="fb-name" placeholder="Аты-жөніңіз (немесе лақап ат)" required>
+                <textarea id="fb-text" placeholder="Пікіріңіз немесе ұсынысыңызды осында жазыңыз..." required></textarea>
+                <button class="submit-btn" onclick="submitFeedback()">Жіберу</button>
+            </div>
+            <p id="fb-msg" style="color:var(--success); font-weight:bold; margin-top:15px; text-align:center; display:none;">Пікіріңіз сәтті жіберілді! Рақмет!</p>
+        `;
+    }
+    
+    // DOM жаңартылған соң KaTeX формулаларын рендерлеу
+    if (typeof renderMathInElement === "function") {
+        renderMathInElement(c, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false}
+            ],
+            throwOnError: false
+        });
+    }
+}
+
+function generateTest(questions) {
+    return questions.map((item, index) => `
+        <div class="question-block" data-correct="${item.correct}">
+            <div class="question-text">${index + 1}. ${item.q}</div>
+            <div class="options-grid">
+                ${item.a.map((opt, i) => `
+                    <label class="option">
+                        <input type="radio" name="q${index}" value="${i}"> 
+                        <span>${opt}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function checkQuiz() {
+    let questions = document.querySelectorAll('.question-block');
+    let score = 0;
+    questions.forEach((q, idx) => {
+        let selected = q.querySelector(`input[name="q${idx}"]:checked`);
+        let correctIdx = q.getAttribute('data-correct');
+        if(selected && selected.value == correctIdx) {
+            score++;
+            q.style.borderColor = "var(--success)";
+            q.style.background = "#f0fdf4";
+        } else {
+            q.style.borderColor = "var(--danger)";
+            q.style.background = "#fef2f2";
+        }
+    });
+    let res = document.getElementById("quiz-res");
+    res.innerText = `Сіздің балыңыз: ${score} / ${questions.length}`;
+    res.style.color = score >= 4 ? "var(--success)" : "var(--danger)";
+}
+
+// Кері байланыс жүйесі
+function submitFeedback() {
+    let nameInput = document.getElementById("fb-name");
+    let textInput = document.getElementById("fb-text");
+    
+    if(!nameInput.value.trim() || !textInput.value.trim()) {
+        alert("Барлық жолақтарды толтырыңыз!");
+        return;
+    }
+    
+    let newFb = {
+        name: nameInput.value.trim(),
+        text: textInput.value.trim(),
+        date: new Date().toLocaleDateString('kk-KZ', {day: 'numeric', month: 'short', year: 'numeric'})
+    };
+    
+    feedbackList.unshift(newFb); // Жаңасын басына қосамыз
+    localStorage.setItem('physics_olabs_feedbacks', JSON.stringify(feedbackList));
+    
+    nameInput.value = "";
+    textInput.value = "";
+    
+    let msg = document.getElementById("fb-msg");
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 3000);
+    
+    renderFeedbackSidebar();
+}
+
+function renderFeedbackSidebar() {
+    let container = document.getElementById("sidebar-feedbacks");
+    if(feedbackList.length === 0) {
+        container.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>Әзірге пікірлер жоқ.</p>";
+        return;
+    }
+    
+    let html = feedbackList.map(f => `
+        <div class="feedback-item">
+            <b>${f.name}</b>
+            ${f.text}
+            <br><span>📅 ${f.date}</span>
+        </div>
+    `).join('');
+    container.innerHTML = html;
+}
+
+// Бастапқы жүктеу
+window.onload = () => {
+    renderFeedbackSidebar();
+    loadLab('ohm');
+};
+
+</script>
+</body>
+</html>
